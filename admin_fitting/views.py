@@ -2,15 +2,17 @@ from rest_framework.permissions import  IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import generics
 from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets
+from rest_framework import status
 from consumer.models import Fitting
+from .models import GettingStartedInfo
+from .serializers import GettingStartedInfoSerializer
 from consumer.serializers import FittingSerializer
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
-from rest_framework import status
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -41,7 +43,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                     "id": user.id,
                     "username": user.username,
                     "email": user.email,
-                    "is_staff": user.is_staff
+                    "is_admin": user.is_staff
                 }
             }
 
@@ -68,5 +70,12 @@ class AdminFittingViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Allow admins to view all fittings
         return self.queryset
+    
+class GettingStartedInfoDetailView(generics.RetrieveUpdateAPIView):
+    queryset = GettingStartedInfo.objects.all()
+    serializer_class = GettingStartedInfoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return GettingStartedInfo.objects.first()

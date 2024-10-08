@@ -70,7 +70,10 @@ class AdminFittingViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset
+        if self.request.user.is_staff:
+            return self.queryset.all()
+        
+        return self.queryset.filter(user=self.request.user)
     
 class GettingStartedInfoDetailView(generics.RetrieveUpdateAPIView):
     queryset = GettingStartedInfo.objects.all()
